@@ -3,8 +3,6 @@ let request = require('request');
 let loda = require('lodash');
 let intDevices = [];
 let newDevicesIp = [];
-console.log('\u52a0\u5fae\u4fe1\u0020\u0020\u0076\u0078\u0038\u0034\u0039\u0033\u0030\u0036\u0037\u0033\u0037');
-return;
 scanning();
 setInterval(() => {
     scanning();
