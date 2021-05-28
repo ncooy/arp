@@ -2,7 +2,6 @@ let find = require('local-devices');
 let request = require('request');
 let loda = require('lodash');
 let intDevices = [];
-//只存设备的Ip地址;
 let newDevicesIp = [];
 scanning();
 setInterval(() => {
@@ -11,6 +10,8 @@ setInterval(() => {
 
 function scanning() {
     find().then(res => {
+        console.log(res)
+        console.log('---------------------------', Date.now())
         if (!intDevices.length) {
             intDevices = res.map(item => item.ip);
             return;
@@ -35,6 +36,6 @@ function difference(type) {
                 console.log(body)
             })
         })
-    }
+    }else console.log(result,'设备离线')
     intDevices = JSON.parse(JSON.stringify(newDevicesIp));
 }
