@@ -1,41 +1,59 @@
 let find = require('local-devices');
 let request = require('request');
 let loda = require('lodash');
+let lot = require('./mysql/lot/index');
+let flag = 0;
+let devicesDetails = [];
 let intDevices = [];
-let newDevicesIp = [];
+//只存设备的Ip地址;
+let newDevicesMac = [];
 scanning();
 setInterval(() => {
     scanning();
-}, 10000);
+}, 1000);
+
+function lotList(res) {
+    lot.list().then(list => {
+        if (!list.length) {
+            lot.insert(res)
+        }
+    })
+}
 
 function scanning() {
     find().then(res => {
-        console.log(res)
-        console.log('---------------------------', Date.now())
+        devicesDetails = res;
         if (!intDevices.length) {
-            intDevices = res.map(item => item.ip);
+            lotList(res);
+            intDevices = res.map(item => item.mac);
             return;
         }
         if (intDevices.length !== res.length) {
-            newDevicesIp = res.map(item => item.ip);
+            newDevicesMac = res.map(item => item.mac);
             difference(intDevices.length < res.length);
         }
     })
 }
 
 function difference(type) {
-    let array = [newDevicesIp, intDevices];
+    let array = [newDevicesMac, intDevices];
     let result = loda.differenceBy(...array);
     if (!result.length) result = loda.differenceBy(...array.reverse());
     if (type) {
-        console.log(result, '新上线设备')
         result.forEach(item => {
-            request({
-                url: `http://${item}/getDevice`,
-            }, (err, response, body) => {
-                console.log(body)
+            lot.findByMac(item).then(result => {
+                if (!result.length) {
+                    console.log(item, '新上线设备');
+                    request({
+                        url: `http://${item}/getDevice`,
+                    }, (err, response, body) => {
+                        if (err) return console.log(item, '设备无响应');
+                        console.log(body, '从设备获取到的信息')
+                    })
+                    lot.insert([devicesDetails.find(ele => ele.mac === item)]);
+                }
             })
         })
-    }else console.log(result,'设备离线')
-    intDevices = JSON.parse(JSON.stringify(newDevicesIp));
+    }
+    intDevices = JSON.parse(JSON.stringify(newDevicesMac));
 }

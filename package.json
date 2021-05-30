@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "devDependencies": {
     "local-devices": "^3.1.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "sqlite3": "^5.0.2"
   },
   "dependencies": {
+    "mysql": "^2.18.1",
     "request": "^2.88.2"
   }
 }
